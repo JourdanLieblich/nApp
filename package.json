@@ -1,0 +1,46 @@
+{
+    "author": "jslieblich@gmail.com",
+    "dependencies": {},
+    "keywords": [],
+    "name": "napp",
+    "pebble": {
+        "displayName": "nApp",
+        "enableMultiJS": true,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/stopwatch.png",
+                    "name": "STOPWATCH",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/zzz_small.png",
+                    "name": "ZZZ_SMALL",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/zzz_large.png",
+                    "name": "ZZZ_LARGE",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/nap.png",
+                    "name": "IMAGE_SPLASH",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "uuid": "2dd4ecaa-d36e-4e7a-b7bd-7983b362a02d",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
