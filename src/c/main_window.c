@@ -1,7 +1,7 @@
 #include <pebble.h>
 
 #include "src/c/main_window.h"
-
+#include "src/c/timer.h"
 
 // Using a text layer for now to specify the background and sidebar, 
 // I'm thinking there's a more specific way to do that
@@ -9,6 +9,7 @@
 static Window *window;
 static TextLayer *background_layer;
 static TextLayer *sidebar_layer;
+static TextLayer *timer_layer;
 static GBitmap *large_zzz;
 static GBitmap *small_zzz;
 static GBitmap *stopwatch;
@@ -16,17 +17,86 @@ static BitmapLayer *large_zzz_layer;
 static BitmapLayer *small_zzz_layer;
 static BitmapLayer *stopwatch_layer;
 
+static int time_selector = 5;
+
+static void update_time_selected(int time_selected) {
+  char* buf;
+  buf = "xxxx";
+  snprintf(buf, sizeof(buf),"%d", time_selector);
+  text_layer_set_text(timer_layer, buf);
+}
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(background_layer, "Select");
+  text_layer_set_text(background_layer, "Begin");
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(background_layer, "Up");
+  
+  switch(time_selector){
+    case 3:
+      update_time_selected(time_selector += 2);
+      break;
+    case 5:
+      update_time_selected(time_selector += 5);
+      break;
+    case 10:
+      update_time_selected(time_selector += 5);
+      break;
+    case 15:
+      update_time_selected(time_selector += 5);
+      break;
+    case 20:
+      update_time_selected(time_selector += 5);
+      break;
+    case 25:
+      update_time_selected(time_selector += 5);
+      break;
+    case 30:
+      update_time_selected(time_selector += 10);
+      break;
+    case 40:
+      update_time_selected(time_selector += 10);
+      break;
+    case 50:
+      update_time_selected(time_selector += 10);
+      break;
+    default:
+    break;
+  }
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(background_layer, "Down");
+    switch(time_selector){
+    case 5:
+      update_time_selected(time_selector -= 2);
+      break;
+    case 10:
+      update_time_selected(time_selector -= 5);
+      break;
+    case 15:
+      update_time_selected(time_selector -= 5);
+      break;
+    case 20:
+      update_time_selected(time_selector -= 5);
+      break;
+    case 25:
+      update_time_selected(time_selector -= 5);
+      break;
+    case 30:
+      update_time_selected(time_selector -= 5);
+      break;
+    case 40:
+      update_time_selected(time_selector -= 10);
+      break;
+    case 50:
+      update_time_selected(time_selector -= 10);
+      break;
+    case 60:
+      update_time_selected(time_selector -= 10);
+      break;
+    default:
+    break;
+  }
 }
 
 static void click_config_provider(void *context) {
@@ -79,14 +149,30 @@ void setup_sidebar_layer(Window *window) {
   
 }
 
+void setup_timer_layer(Window *window) {
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_bounds(window_layer);
+
+  // Timer text setup
+  timer_layer = text_layer_create(GRect(25, 60, bounds.size.w, bounds.size.h));
+  text_layer_set_font(timer_layer, fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS));
+  update_time_selected(time_selector);
+  text_layer_set_text_color(timer_layer, GColorWhite);
+  text_layer_set_background_color(timer_layer, GColorClear);
+  layer_add_child(window_layer, text_layer_get_layer(timer_layer));
+}
+
 static void window_load(Window *window) {
+  
   setup_background_layer(window);
   setup_sidebar_layer(window);
+  setup_timer_layer(window);
 }
 
 static void window_unload(Window *window) {
   text_layer_destroy(background_layer);
   text_layer_destroy(sidebar_layer);
+  text_layer_destroy(timer_layer);
   bitmap_layer_destroy(large_zzz_layer);
   bitmap_layer_destroy(small_zzz_layer);
   bitmap_layer_destroy(stopwatch_layer);
@@ -101,6 +187,8 @@ void main_window_create() {
   });
   const bool animated = true;
   window_stack_push(window, animated);
+  
+ 
 }
 
 void main_window_destroy() {

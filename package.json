@@ -11,6 +11,13 @@
         "resources": {
             "media": [
                 {
+                    "file": "images/nap_icon.png",
+                    "menuIcon": true,
+                    "name": "NAP_ICON",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
                     "file": "images/stopwatch.png",
                     "name": "STOPWATCH",
                     "targetPlatforms": null,
@@ -37,6 +44,13 @@
             ]
         },
         "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk",
+            "diorite",
+            "emery"
+        ],
         "uuid": "2dd4ecaa-d36e-4e7a-b7bd-7983b362a02d",
         "watchapp": {
             "watchface": false
