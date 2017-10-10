@@ -1,5 +1,6 @@
 #include <pebble.h>
 
+#include <stdio.h>
 #include "src/c/main_window.h"
 #include "src/c/timer.h"
 
@@ -7,17 +8,27 @@
 // I'm thinking there's a more specific way to do that
 
 static Window *window;
+
 static TextLayer *background_layer;
 static TextLayer *sidebar_layer;
 static TextLayer *timer_layer;
+static TextLayer *nap_countdown_layer;
+
 static GBitmap *large_zzz;
 static GBitmap *small_zzz;
 static GBitmap *stopwatch;
+
 static BitmapLayer *large_zzz_layer;
 static BitmapLayer *small_zzz_layer;
 static BitmapLayer *stopwatch_layer;
+static BitmapLayer *countdown_background;
 
 static int time_selector = 5;
+
+enum State{
+  SETTING,
+  NAPPING
+} app_state = SETTING;
 
 static void update_time_selected(int time_selected) {
   char* buf;
@@ -26,76 +37,143 @@ static void update_time_selected(int time_selected) {
   text_layer_set_text(timer_layer, buf);
 }
 
+
+void update_nap_timer(int minutes, int seconds) {
+  // Here update the text of the nap text layer
+  printf("Updating");
+  static char timer_format[] = " %02d:%02d";
+  static char timer_text[] = " 00:00";
+  
+  snprintf(timer_text, sizeof(timer_text), timer_format, minutes, seconds);
+  text_layer_set_font(nap_countdown_layer, fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS));
+  text_layer_set_text_color(nap_countdown_layer, GColorWhite);
+  text_layer_set_text(nap_countdown_layer, timer_text);
+  printf(timer_text);
+  text_layer_set_text_alignment(nap_countdown_layer, GTextAlignmentCenter);
+
+}
+
+static void begin_nap() {
+  app_state = NAPPING;
+  flipBreak();
+  //initialixe the TextLayer for the timer
+  Layer *window_layer = window_get_root_layer(window);
+
+  GRect bounds = layer_get_bounds(window_layer);
+  
+  nap_countdown_layer = text_layer_create(GRect(0, 65, bounds.size.w, bounds.size.h));
+  text_layer_set_background_color(nap_countdown_layer, GColorClear);
+  update_nap_timer(time_selector, 0);
+
+  countdown_background = bitmap_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h));
+  bitmap_layer_set_background_color(countdown_background, GColorBlack);
+  
+  layer_add_child(window_layer, bitmap_layer_get_layer(countdown_background));
+  layer_add_child(window_layer, text_layer_get_layer(nap_countdown_layer));
+
+  // call initialize timer
+  initialize_timer(time_selector);
+}
+
+void end_nap() {
+  app_state = SETTING;
+  flipBreak();
+  vibes_double_pulse();
+  // destroy the nap Text layer
+ layer_remove_from_parent(text_layer_get_layer(nap_countdown_layer));
+  layer_remove_from_parent(bitmap_layer_get_layer(countdown_background));
+
+  // text_layer_set_background_color(background_layer, GColorClear);
+
+}
+
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(background_layer, "Begin");
+  // Start or stop Timer 
+  if(app_state == SETTING){
+    begin_nap();
+  } else {
+    end_nap();
+  }
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  
-  switch(time_selector){
-    case 3:
-      update_time_selected(time_selector += 2);
+  if(app_state == SETTING){
+    switch(time_selector){
+      case 3:
+        update_time_selected(time_selector += 2);
+        break;
+      case 5:
+        update_time_selected(time_selector += 5);
+        break;
+      case 10:
+        update_time_selected(time_selector += 5);
+        break;
+      case 15:
+        update_time_selected(time_selector += 5);
+        break;
+      case 20:
+        update_time_selected(time_selector += 5);
+        break;
+      case 25:
+        update_time_selected(time_selector += 5);
+        break;
+      case 30:
+        update_time_selected(time_selector += 10);
+        break;
+      case 40:
+        update_time_selected(time_selector += 10);
+        break;
+      case 50:
+        update_time_selected(time_selector += 10);
+        break;
+      default:
       break;
-    case 5:
-      update_time_selected(time_selector += 5);
-      break;
-    case 10:
-      update_time_selected(time_selector += 5);
-      break;
-    case 15:
-      update_time_selected(time_selector += 5);
-      break;
-    case 20:
-      update_time_selected(time_selector += 5);
-      break;
-    case 25:
-      update_time_selected(time_selector += 5);
-      break;
-    case 30:
-      update_time_selected(time_selector += 10);
-      break;
-    case 40:
-      update_time_selected(time_selector += 10);
-      break;
-    case 50:
-      update_time_selected(time_selector += 10);
-      break;
-    default:
-    break;
+    }
   }
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if(app_state == SETTING){
     switch(time_selector){
-    case 5:
-      update_time_selected(time_selector -= 2);
+      case 5:
+        update_time_selected(time_selector -= 2);
+        break;
+      case 10:
+        update_time_selected(time_selector -= 5);
+        break;
+      case 15:
+        update_time_selected(time_selector -= 5);
+        break;
+      case 20:
+        update_time_selected(time_selector -= 5);
+        break;
+      case 25:
+        update_time_selected(time_selector -= 5);
+        break;
+      case 30:
+        update_time_selected(time_selector -= 5);
+        break;
+      case 40:
+        update_time_selected(time_selector -= 10);
+        break;
+      case 50:
+        update_time_selected(time_selector -= 10);
+        break;
+      case 60:
+        update_time_selected(time_selector -= 10);
+        break;
+      default:
       break;
-    case 10:
-      update_time_selected(time_selector -= 5);
-      break;
-    case 15:
-      update_time_selected(time_selector -= 5);
-      break;
-    case 20:
-      update_time_selected(time_selector -= 5);
-      break;
-    case 25:
-      update_time_selected(time_selector -= 5);
-      break;
-    case 30:
-      update_time_selected(time_selector -= 5);
-      break;
-    case 40:
-      update_time_selected(time_selector -= 10);
-      break;
-    case 50:
-      update_time_selected(time_selector -= 10);
-      break;
-    case 60:
-      update_time_selected(time_selector -= 10);
-      break;
-    default:
-    break;
+    }
+  }
+}
+
+static void back_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if(app_state == SETTING) {
+    // Exit the app
+  } else if(app_state == NAPPING) {
+    // Go back to setting
+    end_nap();
   }
 }
 
@@ -103,6 +181,7 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
+  window_single_click_subscribe(BUTTON_ID_BACK, back_click_handler);
 }
 
 void setup_background_layer(Window *window) {
@@ -173,9 +252,11 @@ static void window_unload(Window *window) {
   text_layer_destroy(background_layer);
   text_layer_destroy(sidebar_layer);
   text_layer_destroy(timer_layer);
+  text_layer_destroy(nap_countdown_layer);
   bitmap_layer_destroy(large_zzz_layer);
   bitmap_layer_destroy(small_zzz_layer);
   bitmap_layer_destroy(stopwatch_layer);
+  bitmap_layer_destroy(countdown_background);
 }
 
 void main_window_create() {
