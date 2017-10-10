@@ -9,7 +9,6 @@ static int minutes;
 static bool breakOff = true;
 
 void timer_event_loop(){
-  printf("looper");
     app_timer_register(1000, handle_second_counting_down, NULL);
 }
 
@@ -18,9 +17,10 @@ void handle_second_counting_down(void *data) {
     return;
   
   seconds--;
-  if(seconds == 0 && minutes != 0) {
-    minutes--;
+  if(seconds == 0 && minutes != 0) {    
     update_nap_timer(minutes, seconds);
+    minutes--;
+    seconds = 60;
     timer_event_loop();
   } else if (seconds == 0 && minutes == 0) {
     end_nap();
@@ -35,6 +35,7 @@ void flipBreak() {
 }
 
 void initialize_timer(int nap_minutes) {
+  printf("Back again?");
   minutes = nap_minutes - 1;
   seconds = 60;
   timer_event_loop();
