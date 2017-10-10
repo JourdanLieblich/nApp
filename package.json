@@ -11,6 +11,12 @@
         "resources": {
             "media": [
                 {
+                    "file": "images/nap_button.png",
+                    "name": "NAP_BUTTON",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
                     "file": "images/nap_icon.png",
                     "menuIcon": true,
                     "name": "NAP_ICON",

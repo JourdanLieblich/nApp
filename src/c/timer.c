@@ -36,6 +36,6 @@ void flipBreak() {
 
 void initialize_timer(int nap_minutes) {
   minutes = nap_minutes - 1;
-  seconds = 59;
+  seconds = 60;
   timer_event_loop();
 }

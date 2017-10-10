@@ -6,6 +6,7 @@
 
 // Using a text layer for now to specify the background and sidebar, 
 // I'm thinking there's a more specific way to do that
+// ^ and coming back to it it is a "BitmapLayer" I was looking for
 
 static Window *window;
 
@@ -31,9 +32,9 @@ enum State{
 } app_state = SETTING;
 
 static void update_time_selected(int time_selected) {
-  char* buf;
-  buf = "xxxx";
-  snprintf(buf, sizeof(buf),"%d", time_selector);
+  static char select_format[] = " %02d";
+  static char buf[] = " 00";
+  snprintf(buf, sizeof(buf),select_format, time_selector);
   text_layer_set_text(timer_layer, buf);
 }
 
@@ -129,6 +130,8 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
       default:
       break;
     }
+  } else if (app_state == NAPPING) {
+    end_nap();
   }
 }
 
@@ -165,12 +168,15 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
       default:
       break;
     }
+  } else if (app_state == NAPPING) {
+    end_nap();
   }
 }
 
 static void back_click_handler(ClickRecognizerRef recognizer, void *context) {
   if(app_state == SETTING) {
     // Exit the app
+    window_stack_pop_all(true);
   } else if(app_state == NAPPING) {
     // Go back to setting
     end_nap();
@@ -220,7 +226,7 @@ void setup_sidebar_layer(Window *window) {
   layer_add_child(window_layer, bitmap_layer_get_layer(small_zzz_layer));
   
   // Stopwatch image setup
-  stopwatch = gbitmap_create_with_resource(RESOURCE_ID_STOPWATCH);
+  stopwatch = gbitmap_create_with_resource(RESOURCE_ID_NAP_BUTTON);
   stopwatch_layer = bitmap_layer_create(GRect(102, 65, 40, 40));
   bitmap_layer_set_compositing_mode(stopwatch_layer, GCompOpSet);
   bitmap_layer_set_bitmap(stopwatch_layer, stopwatch);
@@ -233,7 +239,7 @@ void setup_timer_layer(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
 
   // Timer text setup
-  timer_layer = text_layer_create(GRect(25, 60, bounds.size.w, bounds.size.h));
+  timer_layer = text_layer_create(GRect(10, 60, bounds.size.w, bounds.size.h));
   text_layer_set_font(timer_layer, fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS));
   update_time_selected(time_selector);
   text_layer_set_text_color(timer_layer, GColorWhite);
